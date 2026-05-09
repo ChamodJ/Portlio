@@ -96,3 +96,5 @@ export default function CapitalModal({ open, onClose, onSubmit, loading }) {
     </Modal>
   );
 }
+ 
+
