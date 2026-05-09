@@ -6,7 +6,7 @@ import Capital from "./pages/Capital";
 
 export default function App() {
   return (
-    <BrowserRouter basename="/">
+    <BrowserRouter basename="/Portlio">
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Dashboard />} />
