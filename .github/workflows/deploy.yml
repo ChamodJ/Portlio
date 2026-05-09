@@ -17,7 +17,7 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build
         env:
@@ -29,6 +29,9 @@ jobs:
           VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
           VITE_CSE_PROXY_URL: ${{ secrets.VITE_CSE_PROXY_URL }}
         run: npm run build
+
+      - name: Check dist output
+        run: ls -la dist/
 
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v4
