@@ -36,7 +36,7 @@
   100% { background-position:  200% 0; }
 }
 
-/* ── Base ─────────────────────────────────────────────────────────── */
+/*  Base  */
 *, *::before, *::after { box-sizing: border-box; }
 
 html { font-family: 'DM Sans', sans-serif; }
@@ -52,7 +52,7 @@ body {
 ::-webkit-scrollbar-track { background: var(--color-surface-900); }
 ::-webkit-scrollbar-thumb { background: var(--color-surface-800); border-radius: 9999px; }
 
-/* ── Component utilities (Tailwind v4 syntax) ─────────────────────── */
+/*  Component utilities (Tailwind v4 syntax)  */
 @utility card {
   background-color: var(--color-surface-900);
   border: 1px solid var(--color-surface-800);

@@ -1,7 +1,7 @@
 import { X } from "lucide-react";
 import clsx from "clsx";
 
-// ── Modal ──────────────────────────────────────────────────────────────────
+//  Modal 
 export function Modal({ open, onClose, title, children, size = "md" }) {
   if (!open) return null;
 
@@ -43,7 +43,7 @@ export function Modal({ open, onClose, title, children, size = "md" }) {
   );
 }
 
-// ── FormField ──────────────────────────────────────────────────────────────
+//  FormField 
 export function FormField({ label, error, children }) {
   return (
     <div>
@@ -56,12 +56,12 @@ export function FormField({ label, error, children }) {
   );
 }
 
-// ── Skeleton ───────────────────────────────────────────────────────────────
+//  Skeleton 
 export function Skeleton({ className }) {
   return <div className={clsx("skeleton", className)} />;
 }
 
-// ── Empty State ────────────────────────────────────────────────────────────
+//  Empty State 
 export function EmptyState({ icon: Icon, title, description, action }) {
   return (
     <div className="flex flex-col items-center justify-center py-12 sm:py-16 text-center px-4">
@@ -79,7 +79,7 @@ export function EmptyState({ icon: Icon, title, description, action }) {
   );
 }
 
-// ── Page Header ────────────────────────────────────────────────────────────
+//  Page Header 
 export function PageHeader({ title, subtitle, action }) {
   return (
     <div className="flex flex-wrap items-start justify-between gap-3 mb-6 md:mb-8">
@@ -96,7 +96,7 @@ export function PageHeader({ title, subtitle, action }) {
   );
 }
 
-// ── Confirm Dialog ─────────────────────────────────────────────────────────
+//  Confirm Dialog 
 export function ConfirmDialog({ open, onClose, onConfirm, title, message, loading }) {
   return (
     <Modal open={open} onClose={onClose} title={title} size="sm">

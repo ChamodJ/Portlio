@@ -16,7 +16,7 @@ async function csePost(endpoint, body = "") {
   return res.json();
 }
 
-// ── In-memory cache (5 min TTL) ───────────────────────────────────────────
+//  In-memory cache (5 min TTL) 
 let _cache = null;
 let _cacheTime = 0;
 const CACHE_TTL = 5 * 60 * 1000;
@@ -49,7 +49,7 @@ async function fetchSinglePrice(ticker) {
   }
 }
 
-// ── Public API ────────────────────────────────────────────────────────────
+//  Public API 
 
 export async function fetchAllPrices(tickers = []) {
   const now = Date.now();
