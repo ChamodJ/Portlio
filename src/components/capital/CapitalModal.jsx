@@ -1,5 +1,13 @@
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Modal, FormField } from "../ui";
+
+const freshDefaults = () => ({
+  date: new Date().toISOString().split("T")[0],
+  type: "DEPOSIT",
+  description: "",
+  amount: "",
+});
 
 export default function CapitalModal({ open, onClose, onSubmit, loading }) {
   const {
@@ -8,19 +16,17 @@ export default function CapitalModal({ open, onClose, onSubmit, loading }) {
     reset,
     watch,
     formState: { errors },
-  } = useForm({
-    defaultValues: {
-      date: new Date().toISOString().split("T")[0],
-      type: "DEPOSIT",
-      description: "",
-      amount: "",
-    },
-  });
+  } = useForm({ defaultValues: freshDefaults() });
 
   const type = watch("type");
 
+  // Clear form every time modal opens
+  useEffect(() => {
+    if (open) reset(freshDefaults());
+  }, [open, reset]);
+
   const handleClose = () => {
-    reset();
+    reset(freshDefaults());
     onClose();
   };
 
@@ -49,23 +55,14 @@ export default function CapitalModal({ open, onClose, onSubmit, loading }) {
                   : "text-surface-500 hover:text-surface-300"
               }`}
             >
-              <input
-                type="radio"
-                value={t}
-                className="sr-only"
-                {...register("type")}
-              />
+              <input type="radio" value={t} className="sr-only" {...register("type")} />
               {t === "DEPOSIT" ? "Deposit" : "Withdrawal"}
             </label>
           ))}
         </div>
 
         <FormField label="Date" error={errors.date?.message}>
-          <input
-            type="date"
-            className="input"
-            {...register("date", { required: "Required" })}
-          />
+          <input type="date" className="input" {...register("date", { required: "Required" })} />
         </FormField>
 
         <FormField label="Description" error={errors.description?.message}>
@@ -83,20 +80,12 @@ export default function CapitalModal({ open, onClose, onSubmit, loading }) {
             className="input font-mono"
             placeholder="5000.00"
             step="0.01"
-            {...register("amount", {
-              required: "Required",
-              min: { value: 0.01, message: "Must be > 0" },
-            })}
+            {...register("amount", { required: "Required", min: { value: 0.01, message: "Must be > 0" } })}
           />
         </FormField>
 
         <div className="flex gap-3 pt-2">
-          <button
-            type="button"
-            className="btn-ghost flex-1"
-            onClick={handleClose}
-            disabled={loading}
-          >
+          <button type="button" className="btn-ghost flex-1" onClick={handleClose} disabled={loading}>
             Cancel
           </button>
           <button type="submit" className="btn-primary flex-1" disabled={loading}>

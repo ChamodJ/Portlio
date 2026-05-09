@@ -31,9 +31,9 @@ export default function Sidebar({ open, onClose }) {
           </div>
           <div>
             <p className="font-display font-700 text-sm text-surface-50 leading-tight">
-              CSE Portfolio
+              Portlio
             </p>
-            <p className="text-xs text-surface-500 leading-tight">Tracker</p>
+            <p className="text-xs text-surface-500 leading-tight">Personal Portfolio Tracker</p>
           </div>
         </div>
         {/* Close button — mobile only */}
@@ -78,8 +78,8 @@ export default function Sidebar({ open, onClose }) {
 
       {/* Footer */}
       <div className="px-6 py-4 border-t border-surface-800">
-        <p className="text-xs text-surface-600">Colombo Stock Exchange</p>
-        <p className="text-xs text-surface-700 mt-0.5">Personal tracker · v0.1</p>
+        <p className="text-xs text-surface-600">Portlio</p>
+        <p className="text-xs text-taupe-400 mt-0.5">v1.0</p>
       </div>
     </aside>
   );

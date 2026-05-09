@@ -3,7 +3,7 @@
  * Worker URL is stored in .env as VITE_CSE_PROXY_URL
  */
 
-const PROXY = import.meta.env.VITE_CSE_PROXY_URL; // e.g. https://cse-proxy.yourname.workers.dev
+const PROXY = import.meta.env.VITE_CSE_PROXY_URL;
 
 async function csePost(endpoint, body = "") {
   const res = await fetch(`${PROXY}/${endpoint}`, {

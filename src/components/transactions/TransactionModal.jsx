@@ -5,6 +5,17 @@ import { calcFee, calcNetTotal, formatLKR } from "../../calculations/portfolio";
 
 const DEFAULT_FEE = 1.12;
 
+const freshDefaults = () => ({
+  date: new Date().toISOString().split("T")[0],
+  type: "BUY",
+  feePercent: DEFAULT_FEE,
+  quantity: "",
+  pricePerShare: "",
+  netTotal: "",
+  ticker: "",
+  companyName: "",
+});
+
 export default function TransactionModal({ open, onClose, onSubmit, loading }) {
   const {
     register,
@@ -13,36 +24,31 @@ export default function TransactionModal({ open, onClose, onSubmit, loading }) {
     control,
     setValue,
     formState: { errors },
-  } = useForm({
-    defaultValues: {
-      date: new Date().toISOString().split("T")[0],
-      type: "BUY",
-      feePercent: DEFAULT_FEE,
-      quantity: "",
-      pricePerShare: "",
-      netTotal: "",
-    },
-  });
+  } = useForm({ defaultValues: freshDefaults() });
 
   const type = useWatch({ control, name: "type" });
   const quantity = useWatch({ control, name: "quantity" });
   const pricePerShare = useWatch({ control, name: "pricePerShare" });
   const feePercent = useWatch({ control, name: "feePercent" });
 
-  // Auto-calculate net total when inputs change
+  // Auto-calculate net total
   useEffect(() => {
     const qty = Number(quantity);
     const pps = Number(pricePerShare);
     const fp = Number(feePercent) || DEFAULT_FEE;
     if (qty > 0 && pps > 0) {
       const gross = qty * pps;
-      const net = calcNetTotal(gross, fp, type);
-      setValue("netTotal", net.toFixed(2));
+      setValue("netTotal", calcNetTotal(gross, fp, type).toFixed(2));
     }
   }, [quantity, pricePerShare, feePercent, type, setValue]);
 
+  // Clear form every time modal opens
+  useEffect(() => {
+    if (open) reset(freshDefaults());
+  }, [open, reset]);
+
   const handleClose = () => {
-    reset();
+    reset(freshDefaults());
     onClose();
   };
 
@@ -52,7 +58,6 @@ export default function TransactionModal({ open, onClose, onSubmit, loading }) {
     const fp = Number(data.feePercent);
     const gross = qty * pps;
     const fees = calcFee(gross, fp);
-
     onSubmit({
       date: data.date,
       ticker: data.ticker.toUpperCase().trim(),
@@ -89,12 +94,7 @@ export default function TransactionModal({ open, onClose, onSubmit, loading }) {
                   : "text-surface-500 hover:text-surface-300"
               }`}
             >
-              <input
-                type="radio"
-                value={t}
-                className="sr-only"
-                {...register("type")}
-              />
+              <input type="radio" value={t} className="sr-only" {...register("type")} />
               {t}
             </label>
           ))}
@@ -102,13 +102,8 @@ export default function TransactionModal({ open, onClose, onSubmit, loading }) {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <FormField label="Date" error={errors.date?.message}>
-            <input
-              type="date"
-              className="input"
-              {...register("date", { required: "Required" })}
-            />
+            <input type="date" className="input" {...register("date", { required: "Required" })} />
           </FormField>
-
           <FormField label="Ticker Symbol" error={errors.ticker?.message}>
             <input
               type="text"
@@ -136,37 +131,23 @@ export default function TransactionModal({ open, onClose, onSubmit, loading }) {
               placeholder="100"
               min="1"
               step="1"
-              {...register("quantity", {
-                required: "Required",
-                min: { value: 1, message: "Min 1" },
-              })}
+              {...register("quantity", { required: "Required", min: { value: 1, message: "Min 1" } })}
             />
           </FormField>
-
           <FormField label="Price / Share (Rs)" error={errors.pricePerShare?.message}>
             <input
               type="number"
               className="input"
               placeholder="150.00"
               step="0.01"
-              {...register("pricePerShare", {
-                required: "Required",
-                min: { value: 0.01, message: "Must be > 0" },
-              })}
+              {...register("pricePerShare", { required: "Required", min: { value: 0.01, message: "Must be > 0" } })}
             />
           </FormField>
-
           <FormField label="Fee %" error={errors.feePercent?.message}>
-            <input
-              type="number"
-              className="input"
-              step="0.01"
-              {...register("feePercent", { required: "Required" })}
-            />
+            <input type="number" className="input" step="0.01" {...register("feePercent", { required: "Required" })} />
           </FormField>
         </div>
 
-        {/* Calculation breakdown */}
         {gross > 0 && (
           <div className="bg-surface-800/60 rounded-xl p-4 space-y-2 text-sm">
             <div className="flex justify-between text-surface-400">
@@ -180,27 +161,19 @@ export default function TransactionModal({ open, onClose, onSubmit, loading }) {
             <div className="h-px bg-surface-700" />
             <div className="flex justify-between font-display font-600 text-surface-200">
               <span>Net Total</span>
-              <span className="font-mono text-accent">{formatLKR(Number(gross) + (type === "BUY" ? fees : -fees))}</span>
+              <span className="font-mono" style={{ color: "var(--color-accent)" }}>
+                {formatLKR(Number(gross) + (type === "BUY" ? fees : -fees))}
+              </span>
             </div>
           </div>
         )}
 
         <FormField label="Net Total (Rs) — editable" error={errors.netTotal?.message}>
-          <input
-            type="number"
-            className="input font-mono"
-            step="0.01"
-            {...register("netTotal", { required: "Required" })}
-          />
+          <input type="number" className="input font-mono" step="0.01" {...register("netTotal", { required: "Required" })} />
         </FormField>
 
         <div className="flex gap-3 pt-2">
-          <button
-            type="button"
-            className="btn-ghost flex-1"
-            onClick={handleClose}
-            disabled={loading}
-          >
+          <button type="button" className="btn-ghost flex-1" onClick={handleClose} disabled={loading}>
             Cancel
           </button>
           <button type="submit" className="btn-primary flex-1" disabled={loading}>
