@@ -100,7 +100,7 @@ export default function TransactionModal({ open, onClose, onSubmit, loading }) {
           ))}
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <FormField label="Date" error={errors.date?.message}>
             <input
               type="date"
@@ -128,7 +128,7 @@ export default function TransactionModal({ open, onClose, onSubmit, loading }) {
           />
         </FormField>
 
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
           <FormField label="Quantity" error={errors.quantity?.message}>
             <input
               type="number"
@@ -143,7 +143,7 @@ export default function TransactionModal({ open, onClose, onSubmit, loading }) {
             />
           </FormField>
 
-          <FormField label="Price Per Share (Rs)" error={errors.pricePerShare?.message}>
+          <FormField label="Price / Share (Rs)" error={errors.pricePerShare?.message}>
             <input
               type="number"
               className="input"

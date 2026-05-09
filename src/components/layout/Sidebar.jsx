@@ -4,6 +4,7 @@ import {
   ArrowLeftRight,
   Wallet,
   TrendingUp,
+  X,
 } from "lucide-react";
 import clsx from "clsx";
 
@@ -13,11 +14,17 @@ const links = [
   { to: "/capital", icon: Wallet, label: "Capital" },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ open, onClose }) {
   return (
-    <aside className="fixed left-0 top-0 h-full w-64 bg-surface-900 border-r border-surface-800 flex flex-col z-40">
+    <aside
+      className={clsx(
+        "fixed left-0 top-0 h-full w-64 bg-surface-900 border-r border-surface-800 flex flex-col z-40 transition-transform duration-300 ease-in-out",
+        "md:translate-x-0",
+        open ? "translate-x-0" : "-translate-x-full"
+      )}
+    >
       {/* Logo */}
-      <div className="px-6 py-7 border-b border-surface-800">
+      <div className="px-6 py-7 border-b border-surface-800 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center">
             <TrendingUp size={16} className="text-surface-950" strokeWidth={2.5} />
@@ -29,6 +36,13 @@ export default function Sidebar() {
             <p className="text-xs text-surface-500 leading-tight">Tracker</p>
           </div>
         </div>
+        {/* Close button — mobile only */}
+        <button
+          onClick={onClose}
+          className="md:hidden p-1.5 rounded-lg text-surface-500 hover:text-surface-200 hover:bg-surface-800 transition-colors"
+        >
+          <X size={16} />
+        </button>
       </div>
 
       {/* Navigation */}
@@ -38,6 +52,7 @@ export default function Sidebar() {
             key={to}
             to={to}
             end={to === "/"}
+            onClick={onClose}
             className={({ isActive }) =>
               clsx(
                 "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-150",

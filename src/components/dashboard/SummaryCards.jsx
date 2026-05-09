@@ -13,7 +13,7 @@ function SummaryCard({ title, value, sub, icon: Icon, variant, delay, loading })
 
   if (loading) {
     return (
-      <div className="card p-5">
+      <div className="card p-4 sm:p-5">
         <Skeleton className="h-4 w-24 mb-3" />
         <Skeleton className="h-8 w-32 mb-2" />
         <Skeleton className="h-3 w-20" />
@@ -24,23 +24,23 @@ function SummaryCard({ title, value, sub, icon: Icon, variant, delay, loading })
   return (
     <div
       className={clsx(
-        "card p-5 animate-fade-up opacity-0",
+        "card p-4 sm:p-5 animate-fade-up opacity-0",
         `stagger-${delay}`
       )}
       style={{ animationFillMode: "forwards" }}
     >
-      <div className="flex items-start justify-between mb-3">
-        <p className="text-xs font-display font-500 text-surface-500 uppercase tracking-wider">
+      <div className="flex items-start justify-between mb-2 sm:mb-3">
+        <p className="text-xs font-display font-500 text-surface-500 uppercase tracking-wider leading-tight">
           {title}
         </p>
-        <div className="w-7 h-7 rounded-lg bg-surface-800 flex items-center justify-center">
+        <div className="w-7 h-7 rounded-lg bg-surface-800 flex items-center justify-center shrink-0 ml-2">
           <Icon size={13} className="text-surface-400" />
         </div>
       </div>
-      <p className={clsx("font-display font-700 text-xl leading-tight mb-1", variants[variant])}>
+      <p className={clsx("font-display font-700 text-lg sm:text-xl leading-tight mb-1 truncate", variants[variant])}>
         {value}
       </p>
-      {sub && <p className="text-xs text-surface-600">{sub}</p>}
+      {sub && <p className="text-xs text-surface-600 truncate">{sub}</p>}
     </div>
   );
 }
@@ -52,7 +52,7 @@ export default function SummaryCards({ summary, loading, pricesLoading, onRefres
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-3 sm:mb-4">
         <h2 className="font-display font-600 text-sm text-surface-400 uppercase tracking-wider">
           Overview
         </h2>
@@ -62,11 +62,12 @@ export default function SummaryCards({ summary, loading, pricesLoading, onRefres
           className="flex items-center gap-1.5 text-xs text-surface-500 hover:text-surface-300 transition-colors"
         >
           <RefreshCw size={12} className={pricesLoading ? "animate-spin" : ""} />
-          {pricesLoading ? "Updating prices..." : "Refresh prices"}
+          <span className="hidden sm:inline">{pricesLoading ? "Updating prices..." : "Refresh prices"}</span>
+          <span className="sm:hidden">{pricesLoading ? "..." : "Refresh"}</span>
         </button>
       </div>
 
-      <div className="grid grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
         <SummaryCard
           title="Total Capital"
           value={formatLKR(totalInvested)}

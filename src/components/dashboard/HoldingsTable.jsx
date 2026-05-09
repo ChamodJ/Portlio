@@ -25,6 +25,44 @@ function PLCell({ value, percent }) {
   );
 }
 
+/* Mobile card for a single holding */
+function HoldingCard({ h }) {
+  const isPositive = h.unrealizedPL === null || h.unrealizedPL >= 0;
+  return (
+    <div className="px-4 py-4 border-t border-surface-800/60 first:border-0">
+      <div className="flex items-start justify-between mb-2">
+        <div>
+          <span className="font-mono font-600 text-accent text-sm">{h.ticker}</span>
+          <p className="text-xs text-surface-400 mt-0.5 leading-tight">{h.companyName}</p>
+        </div>
+        <PLCell value={h.unrealizedPL} percent={h.plPercent} />
+      </div>
+      <div className="grid grid-cols-3 gap-2 text-xs mt-3">
+        <div>
+          <p className="text-surface-600 mb-0.5 uppercase tracking-wider" style={{ fontSize: "0.6rem" }}>Shares</p>
+          <p className="font-mono text-surface-300">{h.totalShares.toLocaleString()}</p>
+        </div>
+        <div>
+          <p className="text-surface-600 mb-0.5 uppercase tracking-wider" style={{ fontSize: "0.6rem" }}>Avg Buy</p>
+          <p className="font-mono text-surface-300">{formatLKR(h.weightedAvgBuyPrice)}</p>
+        </div>
+        <div>
+          <p className="text-surface-600 mb-0.5 uppercase tracking-wider" style={{ fontSize: "0.6rem" }}>Current</p>
+          <p className="font-mono text-surface-300">
+            {h.currentPrice !== null ? formatLKR(h.currentPrice) : <span className="text-surface-600">—</span>}
+          </p>
+        </div>
+      </div>
+      <div className="mt-2 pt-2 border-t border-surface-800/40 flex justify-between items-center">
+        <p className="text-surface-600 text-xs uppercase tracking-wider" style={{ fontSize: "0.6rem" }}>Value</p>
+        <p className="font-mono text-sm text-surface-200">
+          {h.currentValue !== null ? formatLKR(h.currentValue) : formatLKR(h.totalCost)}
+        </p>
+      </div>
+    </div>
+  );
+}
+
 export default function HoldingsTable({ holdings, loading }) {
   if (loading) {
     return (
@@ -47,7 +85,7 @@ export default function HoldingsTable({ holdings, loading }) {
 
   return (
     <div className="card overflow-hidden animate-fade-up opacity-0 stagger-3" style={{ animationFillMode: "forwards" }}>
-      <div className="px-5 py-4 border-b border-surface-800 flex items-center justify-between">
+      <div className="px-4 sm:px-5 py-4 border-b border-surface-800 flex items-center justify-between">
         <h2 className="font-display font-600 text-sm text-surface-400 uppercase tracking-wider">
           Holdings
         </h2>
@@ -63,64 +101,74 @@ export default function HoldingsTable({ holdings, loading }) {
           description="Add your first buy transaction to see your portfolio here."
         />
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="bg-surface-900/60">
-                <th className="table-header">Ticker</th>
-                <th className="table-header">Company</th>
-                <th className="table-header text-right">Shares</th>
-                <th className="table-header text-right">Avg Buy</th>
-                <th className="table-header text-right">
-                  <span className="flex items-center justify-end gap-1">
-                    Current
-                    <AlertCircle size={10} className="text-surface-600" title="Live price via Yahoo Finance" />
-                  </span>
-                </th>
-                <th className="table-header text-right">Value</th>
-                <th className="table-header text-right">Unrealized P/L</th>
-              </tr>
-            </thead>
-            <tbody>
-              {holdings.map((h) => (
-                <tr
-                  key={h.ticker}
-                  className="hover:bg-surface-800/30 transition-colors duration-100"
-                >
-                  <td className="table-cell">
-                    <span className="font-mono font-500 text-accent text-sm">
-                      {h.ticker}
+        <>
+          {/* Desktop table */}
+          <div className="hidden md:block overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-surface-900/60">
+                  <th className="table-header">Ticker</th>
+                  <th className="table-header">Company</th>
+                  <th className="table-header text-right">Shares</th>
+                  <th className="table-header text-right">Avg Buy</th>
+                  <th className="table-header text-right">
+                    <span className="flex items-center justify-end gap-1">
+                      Current
+                      <AlertCircle size={10} className="text-surface-600" title="Live price via Yahoo Finance" />
                     </span>
-                  </td>
-                  <td className="table-cell text-surface-300 text-sm">
-                    {h.companyName}
-                  </td>
-                  <td className="table-cell text-right font-mono text-sm">
-                    {h.totalShares.toLocaleString()}
-                  </td>
-                  <td className="table-cell text-right font-mono text-sm text-surface-300">
-                    {formatLKR(h.weightedAvgBuyPrice)}
-                  </td>
-                  <td className="table-cell text-right font-mono text-sm">
-                    {h.currentPrice !== null ? (
-                      formatLKR(h.currentPrice)
-                    ) : (
-                      <span className="text-surface-600 text-xs">No data</span>
-                    )}
-                  </td>
-                  <td className="table-cell text-right font-mono text-sm text-surface-200">
-                    {h.currentValue !== null
-                      ? formatLKR(h.currentValue)
-                      : formatLKR(h.totalCost)}
-                  </td>
-                  <td className="table-cell text-right">
-                    <PLCell value={h.unrealizedPL} percent={h.plPercent} />
-                  </td>
+                  </th>
+                  <th className="table-header text-right">Value</th>
+                  <th className="table-header text-right">Unrealized P/L</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {holdings.map((h) => (
+                  <tr
+                    key={h.ticker}
+                    className="hover:bg-surface-800/30 transition-colors duration-100"
+                  >
+                    <td className="table-cell">
+                      <span className="font-mono font-500 text-accent text-sm">
+                        {h.ticker}
+                      </span>
+                    </td>
+                    <td className="table-cell text-surface-300 text-sm">
+                      {h.companyName}
+                    </td>
+                    <td className="table-cell text-right font-mono text-sm">
+                      {h.totalShares.toLocaleString()}
+                    </td>
+                    <td className="table-cell text-right font-mono text-sm text-surface-300">
+                      {formatLKR(h.weightedAvgBuyPrice)}
+                    </td>
+                    <td className="table-cell text-right font-mono text-sm">
+                      {h.currentPrice !== null ? (
+                        formatLKR(h.currentPrice)
+                      ) : (
+                        <span className="text-surface-600 text-xs">No data</span>
+                      )}
+                    </td>
+                    <td className="table-cell text-right font-mono text-sm text-surface-200">
+                      {h.currentValue !== null
+                        ? formatLKR(h.currentValue)
+                        : formatLKR(h.totalCost)}
+                    </td>
+                    <td className="table-cell text-right">
+                      <PLCell value={h.unrealizedPL} percent={h.plPercent} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile card list */}
+          <div className="md:hidden">
+            {holdings.map((h) => (
+              <HoldingCard key={h.ticker} h={h} />
+            ))}
+          </div>
+        </>
       )}
     </div>
   );

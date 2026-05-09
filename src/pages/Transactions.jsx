@@ -33,7 +33,7 @@ export default function Transactions() {
   const sellCount = transactions.filter((t) => t.type === "SELL").length;
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-5 sm:space-y-6 animate-fade-in">
       <PageHeader
         title="Transactions"
         subtitle={`${buyCount} buy · ${sellCount} sell · ${transactions.length} total`}
