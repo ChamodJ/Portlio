@@ -1,49 +1,88 @@
 /**
- * CSE price fetching.
- * CSE does not have an official public API.
- * Yahoo Finance supports .CM suffix for some CSE stocks (e.g., SAMP.CM).
- * This tries Yahoo via a CORS proxy, falls back to last known / manual prices.
- *
- * IMPORTANT: Replace CORS_PROXY with allorigins or your own proxy if needed.
+ * CSE price service — routes through your Cloudflare Worker proxy.
+ * Worker URL is stored in .env as VITE_CSE_PROXY_URL
  */
 
-const CORS_PROXY = "https://api.allorigins.win/raw?url=";
+const PROXY = import.meta.env.VITE_CSE_PROXY_URL; // e.g. https://cse-proxy.yourname.workers.dev
 
-// Map CSE tickers to Yahoo Finance symbols
-const YAHOO_TICKER_MAP = {
-  "SAMP.N0000": "SAMP.CM",
-  "JKH.N0000": "JKH.CM",
-  "LMF.N0000": "LMF.CM",
-  "KZOO.N0000": "KZOO.CM",
-  // Add more as needed
-};
+async function csePost(endpoint, body = "") {
+  const res = await fetch(`${PROXY}/${endpoint}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body,
+    signal: AbortSignal.timeout(10000),
+  });
+  if (!res.ok) return null;
+  return res.json();
+}
 
-export async function fetchPrice(cseTicker) {
-  const yahooSymbol = YAHOO_TICKER_MAP[cseTicker];
-  if (!yahooSymbol) return null;
+// ── In-memory cache (5 min TTL) ───────────────────────────────────────────
+let _cache = null;
+let _cacheTime = 0;
+const CACHE_TTL = 5 * 60 * 1000;
 
+async function fetchTodayPriceMap() {
   try {
-    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${yahooSymbol}?interval=1d&range=1d`;
-    const res = await fetch(CORS_PROXY + encodeURIComponent(url));
-    const data = await res.json();
-    const price =
-      data?.chart?.result?.[0]?.meta?.regularMarketPrice ?? null;
-    return price;
+    const data = await csePost("todaySharePrice");
+    const list = data?.reqTodaySharePrice;
+    if (!Array.isArray(list)) return null;
+
+    const map = {};
+    for (const item of list) {
+      if (item.symbol && item.lastTradedPrice != null) {
+        map[item.symbol] = item.lastTradedPrice;
+      }
+    }
+    return map;
   } catch {
-    return null; // Silently fail, show "--" in UI
+    return null;
   }
 }
 
-export async function fetchAllPrices(tickers) {
-  const results = await Promise.allSettled(
-    tickers.map(async (t) => ({ ticker: t, price: await fetchPrice(t) }))
-  );
+async function fetchSinglePrice(ticker) {
+  try {
+    const data = await csePost("companyInfoSummery", `symbol=${encodeURIComponent(ticker)}`);
+    const price = data?.reqSymbolInfo?.lastTradedPrice;
+    return price != null && price > 0 ? price : null;
+  } catch {
+    return null;
+  }
+}
+
+// ── Public API ────────────────────────────────────────────────────────────
+
+export async function fetchAllPrices(tickers = []) {
+  const now = Date.now();
+
+  if (!_cache || now - _cacheTime > CACHE_TTL) {
+    _cache = await fetchTodayPriceMap();
+    _cacheTime = now;
+  }
 
   const prices = {};
-  for (const r of results) {
-    if (r.status === "fulfilled" && r.value.price !== null) {
-      prices[r.value.ticker] = r.value.price;
+
+  for (const ticker of tickers) {
+    if (_cache?.[ticker] != null) {
+      prices[ticker] = _cache[ticker];
+    } else {
+      const price = await fetchSinglePrice(ticker);
+      if (price !== null) prices[ticker] = price;
     }
   }
+
   return prices;
+}
+
+export async function fetchPrice(ticker) {
+  const result = await fetchAllPrices([ticker]);
+  return result[ticker] ?? null;
+}
+
+export async function fetchMarketStatus() {
+  try {
+    const data = await csePost("marketStatus");
+    return data?.marketStatus ?? null;
+  } catch {
+    return null;
+  }
 }
